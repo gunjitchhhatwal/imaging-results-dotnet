@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ImagingResults.Core\ImagingResults.Core.csproj" />
+    <ProjectReference Include="..\..\src\ImagingResults.Dicom\ImagingResults.Dicom.csproj" />
+    <ProjectReference Include="..\..\src\ImagingResults.Fhir\ImagingResults.Fhir.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\test-data\synthetic-lung-nodule-case.json"
+          Link="synthetic-lung-nodule-case.json"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net11.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+</Project>

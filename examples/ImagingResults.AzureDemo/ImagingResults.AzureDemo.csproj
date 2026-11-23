@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ImagingResults.Core\ImagingResults.Core.csproj" />
+    <ProjectReference Include="..\..\src\ImagingResults.Dicom\ImagingResults.Dicom.csproj" />
+    <ProjectReference Include="..\..\src\ImagingResults.Dicom.Azure\ImagingResults.Dicom.Azure.csproj" />
+    <ProjectReference Include="..\..\src\ImagingResults.Fhir.R4\ImagingResults.Fhir.R4.csproj" />
+    <ProjectReference Include="..\..\src\ImagingResults.Fhir.Azure\ImagingResults.Fhir.Azure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="synthetic-viewer-case.json"
+          Link="synthetic-viewer-case.json"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net11.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+</Project>

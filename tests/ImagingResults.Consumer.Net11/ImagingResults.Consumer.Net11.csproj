@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ImagingResults.Core\ImagingResults.Core.csproj" />
+    <ProjectReference Include="..\..\src\ImagingResults.Dicom\ImagingResults.Dicom.csproj" />
+    <ProjectReference Include="..\..\src\ImagingResults.Fhir\ImagingResults.Fhir.csproj" />
+  </ItemGroup>
+
+</Project>

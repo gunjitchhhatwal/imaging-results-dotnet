@@ -1,0 +1,29 @@
+{
+  "patientId": "SYNTHETIC-VIEWER-001",
+  "source": {
+    "studyInstanceUid": "1.2.826.0.1.3680043.10.511.500",
+    "seriesInstanceUid": "1.2.826.0.1.3680043.10.511.501",
+    "sopClassUid": "1.2.840.10008.5.1.4.1.1.2",
+    "sopInstanceUid": "1.2.826.0.1.3680043.10.511.502"
+  },
+  "finding": {
+    "label": "Synthetic right upper-lobe pulmonary nodule",
+    "trackingIdentifier": "Cornerstone3DTools@^0.1.0:Length",
+    "trackingUid": "1.2.826.0.1.3680043.10.511.520",
+    "longAxisMillimeters": 14.2,
+    "longAxisPixels": [
+      { "x": 183.5, "y": 219.0 },
+      { "x": 211.7, "y": 220.4 }
+    ]
+  },
+  "algorithm": {
+    "identifier": "synthetic-lung-ai",
+    "name": "Synthetic Lung Nodule AI",
+    "version": "2.1.0"
+  },
+  "report": {
+    "seriesInstanceUid": "1.2.826.0.1.3680043.10.511.530",
+    "sopInstanceUid": "1.2.826.0.1.3680043.10.511.531",
+    "createdAt": "2026-11-18T18:00:00Z"
+  }
+}

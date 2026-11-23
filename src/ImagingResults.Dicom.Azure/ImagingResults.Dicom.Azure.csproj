@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\ImagingResults.Core\ImagingResults.Core.csproj" />
+    <ProjectReference Include="..\ImagingResults.Dicom\ImagingResults.Dicom.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.21.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <PackageId>ImagingResults.Dicom.Azure</PackageId>
+    <Description>Authenticated DICOMweb STOW-RS upload of ImagingResults.NET DICOM instances to Azure Health Data Services.</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+</Project>

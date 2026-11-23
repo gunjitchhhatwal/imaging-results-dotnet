@@ -1,0 +1,14 @@
+.git
+.github
+.vs
+.idea
+.dotnet
+artifacts
+examples/demo-data
+**/bin
+**/obj
+**/node_modules
+TestResults
+coverage
+*.user
+*.suo

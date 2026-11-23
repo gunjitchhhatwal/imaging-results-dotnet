@@ -1,0 +1,152 @@
+services:
+  sdk-demo:
+    build:
+      context: ../..
+      dockerfile: examples/demo-stack/sdk.Dockerfile
+    volumes:
+      - ../../artifacts:/artifacts
+      - ../demo-data/tcia-tcga-bp-4343:/demo-data/tcia-tcga-bp-4343:ro
+    restart: "no"
+
+  orthanc:
+    image: orthancteam/orthanc:25.8.1
+    environment:
+      DICOM_WEB_PLUGIN_ENABLED: "true"
+      ORTHANC__AUTHENTICATION_ENABLED: "false"
+      ORTHANC__REMOTE_ACCESS_ALLOWED: "true"
+      ORTHANC__DICOM_WEB__ROOT: /dicom-web/
+      ORTHANC__HTTP_HEADERS: >-
+        {"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"*","Access-Control-Allow-Methods":"GET,POST,PUT,DELETE,OPTIONS"}
+    ports:
+      - "127.0.0.1:8042:8042"
+    volumes:
+      - orthanc-storage:/var/lib/orthanc/db
+    restart: unless-stopped
+
+  dicom-loader:
+    image: curlimages/curl:8.16.0
+    depends_on:
+      sdk-demo:
+        condition: service_completed_successfully
+      orthanc:
+        condition: service_started
+    entrypoint: ["/bin/sh", "/demo/load-dicom.sh"]
+    volumes:
+      - ../demo-data/tcia-tcga-bp-4343:/demo-data/tcia-tcga-bp-4343:ro
+      - ./load-dicom.sh:/demo/load-dicom.sh:ro
+    restart: "no"
+
+  ohif:
+    image: ohif/app:v3.10.4
+    depends_on:
+      dicom-loader:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:3000:80"
+    volumes:
+      - ./ohif-app-config.js:/usr/share/nginx/html/app-config.js:ro
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: medplum
+      POSTGRES_PASSWORD: medplum
+    command:
+      - postgres
+      - -c
+      - listen_addresses=*
+      - -c
+      - statement_timeout=60000
+      - -c
+      - default_transaction_isolation=REPEATABLE READ
+      - -c
+      - shared_preload_libraries=pg_stat_statements,auto_explain
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medplum"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - medplum-postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: valkey/valkey:8.1.11
+    command: valkey-server --requirepass medplum
+    healthcheck:
+      test: ["CMD", "valkey-cli", "-a", "medplum", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  medplum-server:
+    image: medplum/medplum-server:5.2.17
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8103:8103"
+    command: ["env"]
+    environment:
+      MEDPLUM_PORT: 8103
+      MEDPLUM_BASE_URL: http://localhost:8103/
+      MEDPLUM_APP_BASE_URL: http://localhost:3100/
+      MEDPLUM_STORAGE_BASE_URL: http://localhost:8103/storage/
+      MEDPLUM_DATABASE_HOST: postgres
+      MEDPLUM_DATABASE_PORT: 5432
+      MEDPLUM_DATABASE_DBNAME: medplum
+      MEDPLUM_DATABASE_USERNAME: medplum
+      MEDPLUM_DATABASE_PASSWORD: medplum
+      MEDPLUM_REDIS_HOST: redis
+      MEDPLUM_REDIS_PORT: 6379
+      MEDPLUM_REDIS_PASSWORD: medplum
+      MEDPLUM_BINARY_STORAGE: file:./binary/
+      MEDPLUM_SUPPORT_EMAIL: '"Medplum" <support@medplum.com>'
+      MEDPLUM_GOOGLE_CLIENT_ID: ""
+      MEDPLUM_GOOGLE_CLIENT_SECRET: ""
+      MEDPLUM_MAX_JSON_SIZE: 1mb
+      MEDPLUM_MAX_BATCH_SIZE: 50mb
+      MEDPLUM_ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:3100,http://localhost:3101"
+      MEDPLUM_INTROSPECTION_ENABLED: "true"
+      MEDPLUM_REGISTER_ENABLED: "true"
+      MEDPLUM_SHUTDOWN_TIMEOUT_MILLISECONDS: 30000
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:8103/healthcheck').then(r => r.json()).then(console.log).catch(() => process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+    restart: unless-stopped
+
+  medplum-app:
+    image: medplum/medplum-app:5.2.17
+    depends_on:
+      medplum-server:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:3100:3000"
+    restart: unless-stopped
+
+  medplum-provider:
+    build:
+      context: ../..
+      dockerfile: examples/demo-stack/provider.Dockerfile
+    depends_on:
+      medplum-server:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:3101:80"
+    restart: unless-stopped
+
+volumes:
+  orthanc-storage:
+  medplum-postgres-data:
